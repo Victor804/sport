@@ -33,7 +33,7 @@ export default class App extends React.Component {
 
     render(){
         let activities = this.state.activities.map(item => (
-            <Activity key={item} date={item.datetime} type={item.type} distance={item.distance} time={item.time} />
+            <Activity key={item.id} id={item.id} start_time={item.start_time} duration={item.duration} distance={item.distance} sport_name={item.sport_name} />
         ));
 
 

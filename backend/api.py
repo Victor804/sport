@@ -1,15 +1,15 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-import data
+import database
 
 app = Flask(__name__)
 CORS(app)
-DATA = data.load_data()
 
+db = database.Database("data.db")
 
 @app.route('/activities')
 def activities():
-    return jsonify(data.dashboard_data(DATA))
+    return jsonify(db.get_activities())
 
 if __name__ == '__main__':
     app.run(debug=True)

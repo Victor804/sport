@@ -1,10 +1,10 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, CardActionArea, Typography, Grid } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardActionArea, Typography, Grid, CardMedia } from '@mui/material';
 import { Duration, DateTime } from 'luxon';
 
-function calculatePace(type, durationMinutes, distanceInMeter){
-    console.log("tpye" + type)
-    switch(type) {
+function calculatePace(sport_name, durationMinutes, distanceInMeter){
+    switch(sport_name) {
         case "RUNNING":
             return calculateRunningPace(durationMinutes, distanceInMeter/1000);
 
@@ -15,7 +15,7 @@ function calculatePace(type, durationMinutes, distanceInMeter){
             return calculateCyclingPace(durationMinutes, distanceInMeter/1000);
     
         default:
-            return calculateRunningPace(durationMinutes, distanceInMeter);
+            return calculateRunningPace(durationMinutes, distanceInMeter/1000);
     }
 }
 
@@ -46,8 +46,8 @@ function calculateSwimmingPace(durationMinutes, distanceInMeter) {
 }
 
 
-function formatDistance(type, distanceInMeter){
-    switch(type) {
+function formatDistance(sport_name, distanceInMeter){
+    switch(sport_name) {
         case "RUNNING":
             return `${Math.round(distanceInMeter / 10) / 100} km`;
 
@@ -73,41 +73,41 @@ function formatISODurationToHM(isoDuration) {
 }
 
 function formatDateToReadable(dateString) {
-    const date = DateTime.fromISO(dateString);
+    const start_time = DateTime.fromISO(dateString);
   
-    const formattedDate = date.toFormat("MMM d, yyyy 'at' HH'h' mm");
+    const formattedDate = start_time.toFormat("MMM d, yyyy 'at' HH'h' mm");
     return formattedDate;
   }
 
-export default function Activity({date, type, distance, time})  {
+export default function Activity({id, start_time, duration, distance, sport_name })  {
         return (
             <Card sx={{ maxWidth: 616, marginBottom: 2 }}>
                 <CardActionArea>
                 <CardContent>
                     <Typography gutterBottom variant="body2" color='text.secondary'>
-                        {formatDateToReadable(date)}
+                        {formatDateToReadable(start_time)}
                     </Typography>
                     <Typography variant="h6" component="div" gutterBottom>
-                        {type}
+                        {sport_name}
                     </Typography>
                     <Grid container spacing={2}>
                         <Grid>
                             <Typography variant="body2" color="text.secondary">
                             Distance
                             </Typography>
-                            <Typography variant="h6">{formatDistance(type, distance)}</Typography>
+                            <Typography variant="h6">{formatDistance(sport_name, distance)}</Typography>
                         </Grid>
                         <Grid>
                             <Typography variant="body2" color="text.secondary">
                             Pace
                             </Typography>
-                            <Typography variant="h6">{calculatePace(type, Duration.fromISO(time).as("minutes"), distance)}</Typography>
+                            <Typography variant="h6">{calculatePace(sport_name, Duration.fromISO(duration).as("minutes"), distance)}</Typography>
                         </Grid>
                         <Grid>
                             <Typography variant="body2" color="text.secondary">
-                            Time
+                            Duration
                             </Typography>
-                            <Typography variant="h6">{formatISODurationToHM(time)}</Typography>
+                            <Typography variant="h6">{formatISODurationToHM(duration)}</Typography>
                         </Grid>
                     </Grid>
                 </CardContent>
