@@ -1,14 +1,16 @@
 import React from "react";
 import Container from '@mui/material/Container';
 
-import Activity from "./Activity";
+import ActivityCard from "./components/ActivityCard";
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default class App extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            activities: [] 
+            activities: []
         }
     }
 
@@ -18,22 +20,27 @@ export default class App extends React.Component {
 
     fetchActivities = async () => {
         try {
-            const response = await fetch("http://127.0.0.1:5000/activities");
+            const response = await fetch(`${API_BASE_URL}/activities`);
             if (!response.ok) {
                 throw new Error(`Erreur HTTP : ${response.status}`);
             }
             const data = await response.json();
             console.log(data)
-            this.setState({ activities: data });
+            this.setState({activities: data});
         } catch (error) {
             console.error("Erreur lors du chargement des activités :", error);
         }
     };
-    
 
-    render(){
+
+    render() {
         let activities = this.state.activities.map(item => (
-            <Activity key={item.id} id={item.id} start_time={item.start_time} duration={item.duration} distance={item.distance} sport_name={item.sport_name} />
+            <ActivityCard key={item.id} id={item.id}
+                          start_time={item.start_time}
+                          duration={item.duration}
+                          distance={item.distance}
+                          sport_name={item.sport_name}
+            />
         ));
 
 
@@ -43,7 +50,7 @@ export default class App extends React.Component {
                     {activities}
                 </Container>
             </React.Fragment>
-    
+
         )
     }
 }

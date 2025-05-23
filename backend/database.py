@@ -11,7 +11,7 @@ class Database:
 
     def create_tables(self):
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Activity (
+            CREATE TABLE IF NOT EXISTS ActivityCard (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 start_time TEXT NOT NULL,
                 duration TEXT NOT NULL,
@@ -32,7 +32,7 @@ class Database:
                 latitude REAL,
                 longitude REAL,
                 UNIQUE (activity_id, time),
-                FOREIGN KEY (activity_id) REFERENCES Activity(id) ON DELETE CASCADE
+                FOREIGN KEY (activity_id) REFERENCES ActivityCard(id) ON DELETE CASCADE
             );
         """)
 
@@ -50,7 +50,7 @@ class Database:
         sport_name = json_data["exercises"][0]["sport"]
 
         self.cursor.execute("""
-                            INSERT INTO Activity (start_time, duration, distance, sport_name)
+                            INSERT INTO ActivityCard (start_time, duration, distance, sport_name)
                             VALUES (?, ?, ?, ?);
                             """, (start_time, duration, distance, sport_name))
 
@@ -98,7 +98,7 @@ class Database:
         self.connection.commit()
 
     def get_activities(self):
-        self.cursor.execute("SELECT * FROM Activity ORDER BY start_time ASC ;")
+        self.cursor.execute("SELECT * FROM ActivityCard ORDER BY start_time ASC ;")
         return [dict(row) for row in self.cursor.fetchall()]
 
     def get_points(self, activity_id):
@@ -110,7 +110,7 @@ class Database:
         return [dict(row) for row in self.cursor.fetchall()]
 
     def clear_tables(self):
-        self.cursor.execute("DELETE FROM Activity;")
+        self.cursor.execute("DELETE FROM ActivityCard;")
         self.cursor.execute("DELETE FROM Point;")
 
         self.connection.commit()
