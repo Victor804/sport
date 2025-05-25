@@ -9,7 +9,7 @@ import {
 } from "../utils/metrics";
 
 
-export default function ActivityCard({id, start_time, duration, distance, sport_name}) {
+export default function ActivityCard({start_time, duration, distance, sport_name}) {
     return (
         <Card sx={{maxWidth: 616, marginBottom: 2}}>
             <CardActionArea>
