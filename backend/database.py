@@ -1,6 +1,7 @@
 import sqlite3
 import json
 import glob
+from collections import defaultdict
 
 
 class Database:
@@ -124,20 +125,40 @@ class Database:
             return [dict(row) for row in cursor.fetchall()]
 
     def get_distance_by_week_sport(self):
+        sport_mapping = {
+            "ROAD_RUNNING": "RUNNING",
+        }
+
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""SELECT 
-                                    strftime('%Y-%W', substr(start_time, 1, 10)) AS week,
-                                    SUM(distance)/1000 AS total_distance
-                                FROM Activity
-                                GROUP BY week
-                                ORDER BY week ASC, sport_name ASC;
-            """)
+            cursor.execute("""
+                           SELECT strftime('%Y-%W', substr(start_time, 1, 10)) AS week,
+                                  SUM(distance) / 1000                         AS total_distance,
+                                  sport_name
+                           FROM Activity
+                           GROUP BY sport_name, week
+                           ORDER BY week ASC, sport_name ASC;
+                           """)
 
             rows = cursor.fetchall()
 
-        return {"labels": [row[0] for row in rows],
-                "values": [row[1] for row in rows]}
+        all_weeks = sorted({row[0] for row in rows})
+
+        aggregated = defaultdict(lambda: defaultdict(float))
+
+        for week, distance, sport in rows:
+            grouped_sport = sport_mapping.get(sport, sport)
+            aggregated[grouped_sport][week] += distance
+
+        result = {}
+        for sport_group, data_by_week in aggregated.items():
+            result[sport_group] = {
+                "labels": all_weeks,
+                "values": [data_by_week.get(week, 0) for week in all_weeks]
+            }
+
+        return result
+
 
     def clear_tables(self):
         with self.get_connection() as conn:

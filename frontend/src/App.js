@@ -1,8 +1,8 @@
 import React from "react";
-import Container from '@mui/material/Container';
+import {Container, Stack} from '@mui/material';
 
 import ActivityCard from "./components/ActivityCard";
-import Graph from "./components/Graph"
+import WeeklyDistanceGraph from "./components/Graph/WeeklyDistanceGraph"
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -13,9 +13,13 @@ export default class App extends React.Component {
         this.state = {
             activities: [],
             graph: {
-                labels: [],
-                values: []
-            }
+                "CYCLING":
+                    {
+                    labels:[1, 2, 3],
+                    values:[1, 2, 3]
+                    }
+            },
+            selectedSport: "CYCLING"
         }
     }
 
@@ -64,17 +68,31 @@ export default class App extends React.Component {
             />
         ));
 
-        let graph = <Graph labels={this.state.graph.labels}
-                                values={this.state.graph.values}
-                                color={'#FFA500'}
-                            />
+        let selectedData = this.state.graph[this.state.selectedSport];
+        console.log(selectedData)
+
+        let graph = <WeeklyDistanceGraph labels={selectedData.labels} values={selectedData.values}/>
+
 
         return (
             <React.Fragment>
-                <Container maxWidth="sm">
-                    {graph}
-                    {activities}
-                </Container>
+                <Stack direction="row" spacing={0.5}>
+                    <Container maxWidth="sm">
+                        <select
+                          value={this.state.selectedSport}
+                          onChange={(e) => this.setState({ selectedSport: e.target.value })}
+                          style={{ marginBottom: '1rem' }}>
+                          {Object.keys(this.state.graph).map((sport) => (
+                            <option key={sport} value={sport}>
+                              {sport}
+                            </option>
+                          ))}
+                        </select>
+                        {graph}
+                    </Container>
+
+                    <Container maxWidth="sm">{activities}</Container>
+                </Stack>
             </React.Fragment>
 
         )
