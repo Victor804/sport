@@ -12,21 +12,12 @@ export default class App extends React.Component {
 
         this.state = {
             activities: [],
-            graph: {
-                "CYCLING":
-                    {
-                    labels:[1, 2, 3],
-                    values:[1, 2, 3]
-                    }
-            },
-            selectedSport: "CYCLING"
         }
     }
 
     async componentDidMount() {
         await Promise.all([
             this.fetchActivities(),
-            this.fetchGraph()
             ]);
     }
 
@@ -43,19 +34,7 @@ export default class App extends React.Component {
         }
     };
 
-    fetchGraph = async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/graph`);
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP : ${response.status}`);
-            }
-            const data = await response.json();
-            console.log("Graph data from API:", data);
-            this.setState({ graph: data });
-        } catch (error) {
-            console.error("Erreur lors du chargement des données du graphique :", error);
-        }
-    };
+
     
 
     render() {
@@ -68,28 +47,10 @@ export default class App extends React.Component {
             />
         ));
 
-        let selectedData = this.state.graph[this.state.selectedSport];
-        console.log(selectedData)
-
-        let graph = <WeeklyDistanceGraph labels={selectedData.labels} values={selectedData.values}/>
-
-
         return (
             <React.Fragment>
                 <Stack direction="row" spacing={0.5}>
-                    <Container maxWidth="sm">
-                        <select
-                          value={this.state.selectedSport}
-                          onChange={(e) => this.setState({ selectedSport: e.target.value })}
-                          style={{ marginBottom: '1rem' }}>
-                          {Object.keys(this.state.graph).map((sport) => (
-                            <option key={sport} value={sport}>
-                              {sport}
-                            </option>
-                          ))}
-                        </select>
-                        {graph}
-                    </Container>
+                    <Container maxWidth="sm"><WeeklyDistanceGraph/></Container>
 
                     <Container maxWidth="sm">{activities}</Container>
                 </Stack>
