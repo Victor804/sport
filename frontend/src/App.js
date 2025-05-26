@@ -2,7 +2,7 @@ import React from "react";
 import {Container, Stack} from '@mui/material';
 
 import WeeklyDistanceGraph from "./components/Graph/WeeklyDistanceGraph"
-import ActivitiesList from "./components/ActivitiesList";
+import ActivitiesList from "./components/Activity/ActivitiesList";
 
 export default class App extends React.Component {
     render() {

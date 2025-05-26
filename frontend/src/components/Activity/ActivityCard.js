@@ -1,18 +1,38 @@
 import React from 'react';
-import {Card, CardActionArea, CardContent, Grid, Typography} from '@mui/material';
+import {Link} from 'react-router-dom'
+import {Card, CardActionArea, CardContent, Grid, Skeleton, Typography} from '@mui/material';
 import {
   calculatePace,
   formatDistance,
   formatISODurationToHM,
   formatDateToReadable,
   formatISODurationToMin
-} from "../utils/metrics";
+} from "../../utils/metrics";
 
+export function SkeletonActivityCard() {
+  return (
+    <Card sx={{ maxWidth: 616, marginBottom: 2 }}>
+      <CardContent>
+        <Skeleton width="30%" height={20} />
+        <Skeleton width="50%" height={30} sx={{ mb: 2 }} />
 
-export default function ActivityCard({start_time, duration, distance, sport_name}) {
+        <Grid container spacing={2}>
+          {[1, 2, 3].map((i) => (
+            <Grid item key={i}>
+              <Skeleton variant="text" width={60} height={20} />
+              <Skeleton variant="text" width={80} height={30} />
+            </Grid>
+          ))}
+        </Grid>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function ActivityCard({id, start_time, duration, distance, sport_name}) {
     return (
         <Card sx={{maxWidth: 616, marginBottom: 2}}>
-            <CardActionArea>
+            <CardActionArea component={Link} to={`/activity/${id}`}>
                 <CardContent>
                     <Typography gutterBottom variant="body2" color='text.secondary'>
                         {formatDateToReadable(start_time)}
