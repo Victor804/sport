@@ -1,30 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Graph from "./Graph";
-import {Container} from '@mui/material';
+import { Container, Skeleton, Box } from "@mui/material";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
-const color = "#FFA500"
+const color = "#FFA500";
 
 const options = {
   responsive: true,
   plugins: {
-    legend: {
-      display: false,
-    },
+    legend: { display: false },
   },
-  scales:{
-    x: {
-      grid: {
-        display: false
-      },
-    },
+  scales: {
+    x: { grid: { display: false } },
     y: {
-      grid: {
-        display: false
-      },
+      grid: { display: false },
       ticks: {
-       callback: function (value, index, ticks) {
+        callback: function (value, index, ticks) {
           const firstIndex = 0;
           const lastIndex = ticks.length - 1;
           const middleIndex = Math.floor(lastIndex / 2);
@@ -38,62 +29,60 @@ const options = {
   },
 };
 
-export default class WeeklyDistanceGraph extends React.Component {
-    constructor(props) {
-        super(props);
+export default function WeeklyDistanceGraph() {
+  const [graph, setGraph] = useState({ CYCLING: { labels: [], values: [] } });
+  const [selectedSport, setSelectedSport] = useState("CYCLING");
+  const [loading, setLoading] = useState(true); // 👈 état de chargement
 
-        this.state = {
-            graph: {
-                "CYCLING":
-                    {
-                    labels:[],
-                    values:[]
-                    }
-            },
-            selectedSport: "CYCLING"
+  useEffect(() => {
+    const fetchGraph = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/graph`);
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP : ${response.status}`);
         }
-    }
-
-    async componentDidMount() {
-        await Promise.all([
-            this.fetchGraph(),
-            ]);
-    }
-
-    fetchGraph = async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/graph`);
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP : ${response.status}`);
-            }
-            const data = await response.json();
-            console.log("Graph data from API:", data);
-            this.setState({ graph: data });
-        } catch (error) {
-            console.error("Erreur lors du chargement des données du graphique :", error);
-        }
+        const data = await response.json();
+        console.log("Graph data from API:", data);
+        setGraph(data);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données du graphique :", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    render() {
-        let selectedData = this.state.graph[this.state.selectedSport];
+    fetchGraph();
+  }, []);
 
-        let graph = <Graph labels={selectedData.labels} values={selectedData.values} color={color} options={options}/>
+  const selectedData = graph[selectedSport] || { labels: [], values: [] };
 
-        return(
-            <Container>
-                <select
-                  value={this.state.selectedSport}
-                  onChange={(e) => this.setState({ selectedSport: e.target.value })}
-                  style={{ marginBottom: '1rem' }}>
-                  {Object.keys(this.state.graph).map((sport) => (
-                    <option key={sport} value={sport}>
-                      {sport}
-                    </option>
-                  ))}
-                </select>
-                {graph}
-            </Container>)
+  return (
+    <Container>
+      <select
+        value={selectedSport}
+        onChange={(e) => setSelectedSport(e.target.value)}
+        style={{ marginBottom: '1rem' }}
+        disabled={loading}
+      >
+        {Object.keys(graph).map((sport) => (
+          <option key={sport} value={sport}>
+            {sport}
+          </option>
+        ))}
+      </select>
 
-
-    };
+      {loading ? (
+        <Box>
+          <Skeleton variant="rectangular" height={300} sx={{ borderRadius: 2 }} />
+        </Box>
+      ) : (
+        <Graph
+          labels={selectedData.labels}
+          values={selectedData.values}
+          color={color}
+          options={options}
+        />
+      )}
+    </Container>
+  );
 }
