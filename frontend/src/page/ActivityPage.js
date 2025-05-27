@@ -48,15 +48,16 @@ export default function ActivityPage() {
   }, [activityData, pointData, dataLoaded]);
 
   return (
-      <Container>
-          <MetricGraph
+      <Container sx={{height: 500 }}>
+        <MetricGraph
             labels={downsampleLabels(pointData.map((point) =>
               getElapsedMinutes(activityData[0].start_time, point.time)
             ))}
             values={downsample(pointData.map((point) => point.speed))}
+            values2={downsample(pointData.map((point) => point.heart_rate))}
+            values3={downsample(pointData.map((point) => point.altitude))}
             color={"#1d91f5"}
           />
-
       </Container>
   );
 }

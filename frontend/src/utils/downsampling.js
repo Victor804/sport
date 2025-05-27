@@ -1,4 +1,4 @@
-export function downsample(array, maxPoints = 200) {
+export function downsample(array, maxPoints = 500) {
   if (array.length <= maxPoints) return array;
 
   const blockSize = Math.floor(array.length / maxPoints);
@@ -13,7 +13,7 @@ export function downsample(array, maxPoints = 200) {
   return result;
 }
 
-export function downsampleLabels(array, targetLength = 200) {
+export function downsampleLabels(array, targetLength = 500) {
   const step = Math.floor(array.length / targetLength);
   return array.filter((_, index) => index % step === 0).slice(0, targetLength);
 }
