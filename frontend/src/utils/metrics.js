@@ -53,6 +53,13 @@ export function formatISODurationToMin(isoDuration: string): number {
     return Duration.fromISO(isoDuration).as("minutes");
 }
 
+export function getElapsedMinutes(start: string, end: string): number {
+    const startDate = new Date(start).getTime();
+    const endDate = new Date(end).getTime();
+
+    return  (endDate - startDate) / 60000;
+}
+
 export function formatISODurationToHM(isoDuration: string): string {
     const duration = Duration.fromISO(isoDuration);
     const hours = Math.floor(duration.as("hours"));
@@ -60,6 +67,18 @@ export function formatISODurationToHM(isoDuration: string): string {
 
     return `${hours} h ${minutes} min`;
 }
+
+export function formatMinToLabelTime(duration: number): string {
+  const totalSeconds = Math.floor(duration * 60);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+}
+
 
 export function formatDateToReadable(dateString: string): string {
     const date = DateTime.fromISO(dateString);

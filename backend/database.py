@@ -113,6 +113,13 @@ class Database:
 
             return [dict(row) for row in cursor.fetchall()]
 
+    def get_activity(self, activity_id):
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM Activity WHERE id = ? ;", (activity_id,))
+
+            return [dict(row) for row in cursor.fetchall()]
+
     def get_points(self, activity_id):
         with self.get_connection() as conn:
             cursor = conn.cursor()
@@ -158,7 +165,6 @@ class Database:
             }
 
         return result
-
 
     def clear_tables(self):
         with self.get_connection() as conn:

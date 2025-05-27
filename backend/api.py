@@ -15,5 +15,13 @@ def activities():
 def graph():
     return jsonify(db.get_distance_by_week_sport())
 
+@app.route('/activity/<activity_id>')
+def activity(activity_id):
+    return jsonify(db.get_activity(activity_id))
+
+@app.route('/activity/points/<activity_id>')
+def activity_points(activity_id):
+    return jsonify(db.get_points(activity_id))
+
 if __name__ == '__main__':
     app.run(debug=True)

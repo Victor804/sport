@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import Graph from "./Graph";
 import { Container, Skeleton, Box } from "@mui/material";
+import { Line } from 'react-chartjs-2';
+import { hexToRgba } from "../../utils/color";
+
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const color = "#FFA500";
 
-const options = {
+const getOptions = () => ({
   responsive: true,
   plugins: {
     legend: { display: false },
@@ -27,12 +29,12 @@ const options = {
       },
     },
   },
-};
+});
 
 export default function WeeklyDistanceGraph() {
-  const [graph, setGraph] = useState({ CYCLING: { labels: [], values: [] } });
+  const [graph, setGraph] = useState({});
   const [selectedSport, setSelectedSport] = useState("CYCLING");
-  const [loading, setLoading] = useState(true); // 👈 état de chargement
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchGraph = async () => {
@@ -42,7 +44,6 @@ export default function WeeklyDistanceGraph() {
           throw new Error(`Erreur HTTP : ${response.status}`);
         }
         const data = await response.json();
-        console.log("Graph data from API:", data);
         setGraph(data);
       } catch (error) {
         console.error("Erreur lors du chargement des données du graphique :", error);
@@ -55,6 +56,21 @@ export default function WeeklyDistanceGraph() {
   }, []);
 
   const selectedData = graph[selectedSport] || { labels: [], values: [] };
+
+  const data = {
+    labels: selectedData.labels,
+    datasets: [
+      {
+        data: selectedData.values,
+        fill: true,
+        borderColor: color,
+        backgroundColor: hexToRgba(color, 0.2),
+        tension: 0.3,
+        pointBackgroundColor: color,
+        pointRadius: 0,
+      },
+    ],
+  };
 
   return (
     <Container>
@@ -76,12 +92,7 @@ export default function WeeklyDistanceGraph() {
           <Skeleton variant="rectangular" height={300} sx={{ borderRadius: 2 }} />
         </Box>
       ) : (
-        <Graph
-          labels={selectedData.labels}
-          values={selectedData.values}
-          color={color}
-          options={options}
-        />
+        <Line data={data} options={getOptions()} />
       )}
     </Container>
   );
