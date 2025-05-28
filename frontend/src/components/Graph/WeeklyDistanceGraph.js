@@ -67,7 +67,7 @@ export default function WeeklyDistanceGraph() {
         backgroundColor: hexToRgba(color, 0.2),
         tension: 0.3,
         pointBackgroundColor: color,
-        pointRadius: 0,
+        pointRadius: 5,
       },
     ],
   };

@@ -38,6 +38,31 @@ function calculateSwimmingPace(durationMinutes: number, distanceMeters: number):
     return `${minutes}:${seconds.toString().padStart(2, '0')} /100m`;
 }
 
+export function formatPace(sport: string, speedKmh: number): string {
+    switch (sport) {
+        case "RUNNING":
+            if (speedKmh === 0) return "0:00 /km";
+            const paceMinutesPerKm = 60 / speedKmh;
+            const paceMin = Math.floor(paceMinutesPerKm);
+            const paceSec = Math.round((paceMinutesPerKm - paceMin) * 60);
+            return `${paceMin}:${paceSec.toString().padStart(2, '0')} /km`;
+
+        case "CYCLING":
+            return `${speedKmh.toFixed(1)} km/h`;
+
+        case "POOL_SWIMMING":
+            if (speedKmh === 0) return "0:00 /100m";
+            const metersPerMinute = (speedKmh * 1000) / 60;
+            const pacePer100m = 100 / metersPerMinute;
+            const swimMin = Math.floor(pacePer100m);
+            const swimSec = Math.round((pacePer100m - swimMin) * 60);
+            return `${swimMin}:${swimSec.toString().padStart(2, '0')} /100m`;
+
+        default:
+            return `${speedKmh.toFixed(1)} km/h`;
+    }
+}
+
 export function formatDistance(sport: string, distanceMeters: number): string {
     switch (sport) {
         case "POOL_SWIMMING":

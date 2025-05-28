@@ -3,9 +3,11 @@ import { useParams } from "react-router-dom";
 import MetricGraph from "../components/Graph/MetricGraph";
 import { getElapsedMinutes } from "../utils/metrics";
 import { downsampleLabels, downsample } from "../utils/downsampling";
-import {Container} from '@mui/material';
+import {Container, Stack} from '@mui/material';
+import ActivityHeader from "../components/Activity/ActivityHeader";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
 export default function ActivityPage() {
   const { id } = useParams();
@@ -48,16 +50,19 @@ export default function ActivityPage() {
   }, [activityData, pointData, dataLoaded]);
 
   return (
-      <Container sx={{height: 500 }}>
-        <MetricGraph
-            labels={downsampleLabels(pointData.map((point) =>
-              getElapsedMinutes(activityData[0].start_time, point.time)
-            ))}
-            values={downsample(pointData.map((point) => point.speed))}
-            values2={downsample(pointData.map((point) => point.heart_rate))}
-            values3={downsample(pointData.map((point) => point.altitude))}
-            color={"#1d91f5"}
-          />
-      </Container>
+      <Stack>
+        { dataLoaded && <ActivityHeader activityData={activityData}/> }
+        <Container sx={{ height: 500 }}>
+          <MetricGraph
+              labels={downsampleLabels(pointData.map((point) =>
+                getElapsedMinutes(activityData[0].start_time, point.time)
+              ))}
+              values={downsample(pointData.map((point) => point.speed))}
+              values2={downsample(pointData.map((point) => point.heart_rate))}
+              values3={downsample(pointData.map((point) => point.altitude))}
+              color={"#1d91f5"}
+            />
+        </Container>
+      </Stack>
   );
 }

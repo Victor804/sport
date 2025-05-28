@@ -2,7 +2,11 @@ import sqlite3
 import json
 import glob
 from collections import defaultdict
+from datetime import datetime
 
+def truncate_to_secondes(ts):
+    dt = datetime.fromisoformat(ts)
+    return dt.replace(microsecond=0).isoformat()
 
 class Database:
     def __init__(self, db_path):
@@ -22,7 +26,14 @@ class Database:
                     start_time TEXT NOT NULL,
                     duration TEXT NOT NULL,
                     distance REAL NOT NULL,
-                    sport_name TEXT NOT NULL
+                    sport_name TEXT NOT NULL,
+                    avgHeartRate INTEGER,
+                    maxHeartRate INTEGER,
+                    avgSpeed REAL,
+                    maxSpeed REAL,
+                    ascent REAL,
+                    descent REAL,
+                    maxAltitude REAL
                 );
             """)
 
@@ -49,19 +60,37 @@ class Database:
             conn.commit()
 
     def add_activity(self, json_data):
-        # Extraire les données
         start_time = json_data["startTime"]
         duration = json_data["duration"]
         distance = json_data["distance"]
         sport_name = json_data["exercises"][0]["sport"]
+        avgHeartRate = json_data["exercises"][0].get("heartRate", {}).get("avg")
+        maxHeartRate = json_data["exercises"][0].get("heartRate", {}).get("max")
+        avgSpeed = json_data["exercises"][0].get("speed", {}).get("avg")
+        maxSpeed = json_data["exercises"][0].get("speed", {}).get("max")
+
+        ascent = json_data["exercises"][0].get("ascent")
+        descent = json_data["exercises"][0].get("descent")
+        maxAltitude = json_data["exercises"][0].get("altitude", {}).get("max")
 
         with self.get_connection() as conn:
             cursor = conn.cursor()
 
             cursor.execute("""
-                                INSERT INTO Activity (start_time, duration, distance, sport_name)
-                                VALUES (?, ?, ?, ?);
-                                """, (start_time, duration, distance, sport_name))
+                                INSERT INTO Activity (start_time, 
+                                                      duration, 
+                                                      distance, 
+                                                      sport_name,
+                                                      avgHeartRate,
+                                                      maxHeartRate,
+                                                      avgSpeed,
+                                                      maxSpeed,
+                                                      ascent,
+                                                      descent,
+                                                      maxAltitude)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                                """, (start_time, duration, distance, sport_name, avgHeartRate, maxHeartRate,
+                                                 avgSpeed, maxSpeed, ascent, descent,maxAltitude))
 
             activity_id = cursor.lastrowid
 
@@ -69,7 +98,7 @@ class Database:
             points_by_time = {}
 
             def insert_sample(type_, sample):
-                ts = sample["dateTime"]
+                ts = truncate_to_secondes(sample["dateTime"])
                 if ts not in points_by_time:
                     points_by_time[ts] = {}
                 points_by_time[ts][type_] = sample.get("value")
@@ -79,7 +108,7 @@ class Database:
                     insert_sample(type_, sample)
 
             for route in samples.get("recordedRoute", []):
-                ts = route["dateTime"]
+                ts = truncate_to_secondes(route["dateTime"])
                 if ts not in points_by_time:
                     points_by_time[ts] = {}
                 points_by_time[ts]["latitude"] = route.get("latitude")
@@ -132,6 +161,7 @@ class Database:
             return [dict(row) for row in cursor.fetchall()]
 
     def get_distance_by_week_sport(self):
+        #TODO: Select only the last 6 weeks
         sport_mapping = {
             "ROAD_RUNNING": "RUNNING",
         }
@@ -180,6 +210,7 @@ def load_data(database):
     for filename in filenames:
         with open(filename) as f:
             json_data = json.load(f)
+            print(filename)
             database.add_activity(json_data)
 
 
@@ -187,5 +218,4 @@ if __name__ == "__main__":
     database = Database("data.db")
 
     database.create_tables()
-
-    print(database.get_activities())
+    load_data(database)

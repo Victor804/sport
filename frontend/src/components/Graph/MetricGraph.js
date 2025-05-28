@@ -43,11 +43,11 @@ export default function MetricGraph({ labels, values, values2, values3 }) {
     maintainAspectRatio: false,
     animation: false,
     plugins: {
+      //TODO: Make a custom tooltip
       tooltip: {
         enabled: true,
         mode: 'index',
         intersect: false,
-        position: 'customTop',
         callbacks: {
           title: function (tooltipItems) {
             const label = tooltipItems[0].label;
