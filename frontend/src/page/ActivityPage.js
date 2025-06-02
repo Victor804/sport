@@ -5,6 +5,7 @@ import { getElapsedMinutes } from "../utils/metrics";
 import { downsampleLabels, downsample } from "../utils/downsampling";
 import {Container, Stack} from '@mui/material';
 import ActivityHeader from "../components/Activity/ActivityHeader";
+import MapsActivity from "../components/Maps/MapsActivity";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -51,8 +52,23 @@ export default function ActivityPage() {
 
   return (
       <Stack>
-        { dataLoaded && <ActivityHeader activityData={activityData}/> }
-        <Container sx={{ height: 500 }}>
+        { dataLoaded &&
+            <ActivityHeader activityData={activityData}/>
+        }
+        <Container>
+            {dataLoaded && (
+                <MapsActivity
+                    pointData={
+                      pointData.map((point) => ({
+                        latitude: point.latitude,
+                        longitude: point.longitude
+                      })
+                    )}
+                />
+            )}
+        </Container>
+
+          <Container sx={{ height: 500 }}>
           <MetricGraph
               labels={downsampleLabels(pointData.map((point) =>
                 getElapsedMinutes(activityData[0].start_time, point.time)

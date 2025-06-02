@@ -10,7 +10,6 @@ import {
   formatISODurationToMin,
   formatMinToLabelTime,
   formatDistance,
-  calculatePace,
   formatPace
 } from "../../utils/metrics";
 
