@@ -23,5 +23,10 @@ def activity(activity_id):
 def activity_points(activity_id):
     return jsonify(db.get_points(activity_id))
 
+@app.route('/calendar/<year>')
+def calendar(year):
+    return jsonify(db.get_calendar(year))
+
+
 if __name__ == '__main__':
     app.run(debug=True)

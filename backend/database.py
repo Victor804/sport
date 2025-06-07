@@ -196,6 +196,17 @@ class Database:
 
         return result
 
+    def get_calendar(self, year):
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                           SELECT DATE (start_time) as date, COUNT (*) as count
+                           FROM Activity
+                           WHERE strftime('%Y', start_time) = ?
+                           GROUP BY DATE (start_time)
+                           """, (str(year),))
+            return {row["date"]: row["count"] for row in cursor.fetchall()}
+
     def clear_tables(self):
         with self.get_connection() as conn:
             cursor = conn.cursor()
@@ -217,5 +228,4 @@ def load_data(database):
 if __name__ == "__main__":
     database = Database("data.db")
 
-    database.create_tables()
-    load_data(database)
+    print(database.get_calendar(2024))

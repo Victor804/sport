@@ -1,0 +1,28 @@
+.chart {
+  background: #f5f3f0;
+}
+
+.svg-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+
+
+.day {
+  stroke: #f5f3f0;
+}
+
+.month {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.month-label {
+  font-family: sans-serif;
+  fill: #333;
+}
