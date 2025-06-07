@@ -10,6 +10,9 @@ export default class App extends React.Component {
     render() {
         return (
             <React.Fragment>
+                <CalendarHeatmap year={2025}/>
+                <CalendarHeatmap year={2024}/>
+                <CalendarHeatmap year={2023}/>
                 <Stack direction="row" spacing={0.5}>
                     <Container maxWidth="sm">
                         <WeeklyDistanceGraph/>
@@ -18,7 +21,6 @@ export default class App extends React.Component {
                         <ActivitiesList/>
                     </Container>
                 </Stack>
-                <CalendarHeatmap year={2025}/>
             </React.Fragment>
 
         )

@@ -1,8 +1,9 @@
 import sqlite3
 import json
 import glob
+import os
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def truncate_to_secondes(ts):
     dt = datetime.fromisoformat(ts)
@@ -135,10 +136,10 @@ class Database:
 
             conn.commit()
 
-    def get_activities(self):
+    def get_activities(self, nb=20):
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM Activity ORDER BY start_time DESC ;")
+            cursor.execute(f"SELECT * FROM Activity ORDER BY start_time DESC LIMIT {nb};")
 
             return [dict(row) for row in cursor.fetchall()]
 
@@ -160,11 +161,17 @@ class Database:
 
             return [dict(row) for row in cursor.fetchall()]
 
-    def get_distance_by_week_sport(self):
-        #TODO: Select only the last 6 weeks
+    def get_distance_by_week_sport(self, nb_weeks=12):
         sport_mapping = {
             "ROAD_RUNNING": "RUNNING",
+            "TRAIL_RUNNING": "RUNNING",
+            "TRACK_AND_FIELD_RUNNING": "RUNNING",
         }
+
+        # Determine the last x weeks in '%Y-%W' format
+        today = datetime.today()
+        last_x_weeks = [(today - timedelta(weeks=i)).strftime('%Y-%W') for i in range(nb_weeks)]
+        last_x_weeks_set = set(last_x_weeks)
 
         with self.get_connection() as conn:
             cursor = conn.cursor()
@@ -179,10 +186,13 @@ class Database:
 
             rows = cursor.fetchall()
 
-        all_weeks = sorted({row[0] for row in rows})
+        # Filter to only last 6 weeks
+        rows = [row for row in rows if row[0] in last_x_weeks_set]
+
+        # Ensure correct order
+        all_weeks = sorted(last_x_weeks)
 
         aggregated = defaultdict(lambda: defaultdict(float))
-
         for week, distance, sport in rows:
             grouped_sport = sport_mapping.get(sport, sport)
             aggregated[grouped_sport][week] += distance
@@ -222,10 +232,13 @@ def load_data(database):
         with open(filename) as f:
             json_data = json.load(f)
             print(filename)
-            database.add_activity(json_data)
+            if("distance" in json_data):
+                database.add_activity(json_data)
+        os.remove(filename)
 
 
 if __name__ == "__main__":
     database = Database("data.db")
 
-    print(database.get_calendar(2024))
+    database.create_tables()
+    load_data(database)
